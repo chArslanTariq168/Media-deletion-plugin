@@ -31,7 +31,9 @@ if (!function_exists('sb_media_deletion_add_texonomy_field')) {
     function sb_media_deletion_add_texonomy_field() {
         wp_enqueue_media();
         echo '<div class="form-field">
-		<label for="taxonomy_image">' . __('Imagefor theme', 'sb_media_deletion') . '</label>
+		<label for="taxonomy_image">' . __('Add category image', 'sb_media_deletion') . '</label>
+        <img class="taxonomy-image theme-cat-image" src="" style="
+        max-width: 400px">
 		<input type="text" name="taxonomy_image" id="taxonomy_image" value="" />
 		<br/>
 		<button class="sb_media_deletion_upload_image_button button">' . __('Upload/Add image', 'sb_media_deletion') . '</button>
@@ -44,7 +46,8 @@ if (!function_exists('sb_media_deletion_edit_texonomy_field')) {
         $image_url = sb_media_deletion_taxonomy_image_url($taxonomy->term_id, NULL, TRUE);
         $image_url = (sb_media_deletion_taxonomy_image_url($taxonomy->term_id, NULL, TRUE) == DEFAULT_IMAGE_PATH) ? "" : $image_url;
 
-        echo '<tr class="form-field"><th scope="row" valign="top"><label for="taxonomy_image">' . __('Image', 'sb_media_deletion') . '</label></th><td><img class="taxonomy-image theme-cat-image" src="' . sb_media_deletion_taxonomy_image_url($taxonomy->term_id, 'medium', TRUE) . '"/><br/><input type="text" name="taxonomy_image" id="taxonomy_image" value="' . $image_url . '" /><br /><button class="sb_media_deletion_remove_image_button button">' . __('Remove image', 'sb_media_deletion') . '</button><button class="sb_media_deletion_upload_image_button button">' . __('Upload/Add image', 'sb_media_deletion') . '</button></td></tr>' . sb_media_deletion_termMedia_script();
+        echo '<tr class="form-field"><th scope="row" valign="top"><label for="taxonomy_image">' . __('Image', 'sb_media_deletion') . '</label></th><td><img style="
+        max-width: 400px" class="taxonomy-image theme-cat-image" src="' . sb_media_deletion_taxonomy_image_url($taxonomy->term_id, 'medium', TRUE) . '"/><br/><input type="text" name="taxonomy_image" id="taxonomy_image" value="' . $image_url . '" /><br /><button class="sb_media_deletion_remove_image_button button">' . __('Remove image', 'sb_media_deletion') . '</button><button class="sb_media_deletion_upload_image_button button">' . __('Upload/Add image', 'sb_media_deletion') . '</button></td></tr>' . sb_media_deletion_termMedia_script();
     }
 }
 add_action('edit_term', 'sb_media_deletion_save_taxonomy_image');
@@ -89,33 +92,9 @@ if (!function_exists('sb_media_deletion_taxonomy_image_url')) {
         }
 
         if ($return_placeholder == true) {
-            global $adforespro_theme;
-
+          
             $default_url = DEFAULT_IMAGE_PATH;
-            $termData_taxonomy = '';
-            $termData = get_term_by('id', $term_id, 'ad_cats');
-            if ($termData) {
-                $termData_taxonomy = $termData->taxonomy;
-            } else {
-                $termData = get_term_by('id', $term_id, 'ad_country');
-                if ($termData) {
-                    $termData_taxonomy = $termData->taxonomy;
-                }
-            }
-            if ($termData_taxonomy == "ad_cats") {
-                if (isset($adforespro_theme['sb_media_deletion-api-ad-cats-default-icon']['url']) && $adforespro_theme['sb_media_deletion-api-ad-cats-default-icon']['url'] != "") {
-                    $icon_url = $adforespro_theme['sb_media_deletion-api-ad-cats-default-icon']['url'];
-                    $default_url = $icon_url;
-                }
-            }
-            if ($termData_taxonomy == "ad_country") {
-                if (isset($adforespro_theme['sb_media_deletion-api-ad-location-default-icon']['url']) && $adforespro_theme['sb_media_deletion-api-ad-location-default-icon']['url'] != "") {
-                    $icon_url = $sb_media_deletion['sb_media_deletion-api-ad-location-default-icon']['url'];
-                    $default_url = $icon_url;
-                }
-            }
-
-
+            
             return ($taxonomy_image_url != '') ? $taxonomy_image_url : $default_url;
         } else {
             return $taxonomy_image_url;
@@ -241,6 +220,8 @@ if (!function_exists('sb_media_deletion_termMedia_script')) {
 						}
 						else
 							$("#taxonomy_image").val(attachment.attributes.url);
+                            $(".taxonomy-image").attr("src" , attachment.attributes.url);
+                    
 					});
 					frame.open();
 				}
