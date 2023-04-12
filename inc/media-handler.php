@@ -5,6 +5,14 @@ function add_attachment_post_field( $fields, $post ) {
     $attachment_id = $post->ID;   
    
   $post_titles = sb_get_all_attched_post($attachment_id);
+
+   $warning_message  =   "";
+  if($post_titles != ""){
+
+     $warning_message =   '<span style="width: 63%">you can not delete this media until you deatched it from above posts</span>';
+
+  }
+
  $fields['media_posts'] = array(
                     'show_in_edit'  => true,
                     'tr'            => '
@@ -14,6 +22,7 @@ function add_attachment_post_field( $fields, $post ) {
                         <span class="value" style="width: 63%">
                            '.$post_titles.'
                         </span>
+                        '.$warning_message.'
                         </label>
                         <div class="clear"></div>
                     </div>'
@@ -40,9 +49,10 @@ function my_media_column_content($column_name, $attachment_id) {
 add_filter('manage_media_custom_column', 'my_media_column_content', 10, 2);
 
 
-function sb_get_all_attched_post($attachment_id){
+function sb_get_all_attched_post($attachment_id , $request_from = ""){
     
     $post_titles = "";
+    $post_ids  =  [];
 
     $args = array(
     'post_type' => 'any',
@@ -66,6 +76,8 @@ if ($query->have_posts()) {
     $post_title = get_the_title();
     $edit_post_link = get_edit_post_link($post_id);
     $post_titles  .= '<a href="' . esc_url($edit_post_link) . '">' . esc_html($post_title) . '</a><br>';
+
+      $post_ids[]   =  $post_id;
     }
 }
     
@@ -85,22 +97,56 @@ if ($query->have_posts()) {
     $post_title = get_the_title();
     $edit_post_link = get_edit_post_link($post_id);
     $post_titles  .= '<a href="' . esc_url($edit_post_link) . '">' . esc_html($post_title) . '</a><br>';
+     $post_ids[]   =  $post_id;
     }
 }
+
+   if($request_from == "api"){
+    
+      return $post_ids;
+
+   }
+
     return $post_titles;
 }
 
 
-add_filter('pre_delete_attachment', 'prevent_media_deletion');
+add_action('rest_api_init', 'sb_media_api_hooks', 0);
 
-function prevent_media_deletion($attachment_id) {
-    // Check if the attachment is attached to any post
- 
-     $attachment_posts  =   sb_get_all_attched_post($attachment_id);
-     if($attachment_posts != ""){
-          wp_die(__('This media file is attached to a some posts please deatached them first to delete this item.' , 'sb-media-deletion'));
+function sb_media_api_hooks() {
+    register_rest_route('assignment/v1', '/get_media_data/', array(
+        'methods' => WP_REST_Server::EDITABLE,
+        'callback' => 'sb_get_media_data_callback',
+        'permission_callback' => function () {
+            return true;
+        },
+            )
+    );
 
+
+}
+
+
+function sb_get_media_data_callback($request) {
+
+  $json_data = $request->get_json_params();
+  $id = (isset($json_data['id'])) ? $json_data['id'] : '';
+  
+    $attachment = get_post( $id );
+    if ( $attachment && $attachment->post_type == 'attachment' ) {
+        $attachment_data = array(
+            'id' => $attachment->ID,
+            'date' => $attachment->post_date,
+            'slug' => $attachment->post_name,
+            'type' => $attachment->post_mime_type,
+            'link' => wp_get_attachment_url( $id ),
+            'alt_text' => get_post_meta( $id, '_wp_attachment_image_alt', true ),
+            'attached_object' => sb_get_all_attched_post($attachment->ID , 'api'),
+        );
+        return new WP_REST_Response( $attachment_data, 200 );
+    } else {
+        return new WP_Error( 'invalid_attachment', 'Invalid attachment ID.', array( 'status' => 404 ) );
     }
-    // Return the original $deleted value if the attachment is not attached to any post
-    return true;
+  
+
 }
