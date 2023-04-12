@@ -42,6 +42,8 @@ add_filter('manage_media_custom_column', 'my_media_column_content', 10, 2);
 
 function sb_get_all_attched_post($attachment_id){
     
+    $post_titles = "";
+
     $args = array(
     'post_type' => 'any',
     'meta_query' => array(
@@ -73,20 +75,9 @@ wp_reset_postdata() ;
       $args = array(
     'post_type' => 'any',
      's' => wp_get_attachment_url($attachment_id),
-    'meta_query' => array(
-        'relation' => 'OR',
-        array(
-            'key' => '_thumbnail_id',
-            'value' => $attachment_id,
-            'compare' => '='
-        ),
-    
-    )
 );
     
-    
-    $query = new WP_Query($args);
-
+$query = new WP_Query($args);
 if ($query->have_posts()) {
     while ($query->have_posts()) {
         $query->the_post();
@@ -97,4 +88,19 @@ if ($query->have_posts()) {
     }
 }
     return $post_titles;
+}
+
+
+add_filter('pre_delete_attachment', 'prevent_media_deletion');
+
+function prevent_media_deletion($attachment_id) {
+    // Check if the attachment is attached to any post
+ 
+     $attachment_posts  =   sb_get_all_attched_post($attachment_id);
+     if($attachment_posts != ""){
+          wp_die(__('This media file is attached to a some posts please deatached them first to delete this item.' , 'sb-media-deletion'));
+
+    }
+    // Return the original $deleted value if the attachment is not attached to any post
+    return true;
 }
