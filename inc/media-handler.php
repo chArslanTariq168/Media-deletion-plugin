@@ -4,7 +4,7 @@ function add_attachment_post_field($fields, $post)
 {
     $post_titles = "";
     $attachment_id = $post->ID;
-    $post_titles = sb_get_all_attched_post($attachment_id);
+    $post_titles = sb_get_all_attached_post($attachment_id);
     $warning_message = "";
     if ($post_titles != "") {
         $warning_message = '<span style="width: 63%">you can not delete this media until you deatched it from above posts</span>';
@@ -38,11 +38,11 @@ function my_media_column_content($column_name, $attachment_id)
 {
     if ($column_name == 'attached_post') {
 
-        echo $post_titles = sb_get_all_attched_post($attachment_id);
+        echo $post_titles = sb_get_all_attached_post($attachment_id);
     }
 }
 add_filter('manage_media_custom_column', 'my_media_column_content', 10, 2);
-function sb_get_all_attched_post($attachment_id, $request_from = "")
+function sb_get_all_attached_post($attachment_id, $request_from = "")
 {
     $post_titles = "";
     $post_ids = [];

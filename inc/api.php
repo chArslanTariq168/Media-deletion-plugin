@@ -40,7 +40,7 @@ function sb_get_media_data_callback($request)
             'type' => $attachment->post_mime_type,
             'link' => wp_get_attachment_url($id),
             'alt_text' => get_post_meta($id, '_wp_attachment_image_alt', true),
-            'attached_object' => sb_get_all_attched_post($attachment->ID, 'api'),
+            'attached_object' => sb_get_all_attached_post($attachment->ID, 'api'),
         );
         wp_send_json_success($attachment_data);
     } else {
@@ -56,9 +56,13 @@ if (!function_exists('sb_delete_media_callback')) {
         $json_data = $request->get_json_params();
         $attachment_id = isset($json_data['id']) ? intval($json_data['id']) : 0;
 
+        if ( !current_user_can( 'administrator' ) ) {
+          wp_send_json_error(array('message' => __('You are not allowed to delete this','sb-media-deletion')));
+        }
+
         $attachment = get_post($attachment_id);
         if (!$attachment || $attachment->post_type !== 'attachment') {
-            wp_send_json_error(array('message' => 'Invalid attachment ID.'));
+            wp_send_json_error(array('message' => __('Invalid attachment ID.','sb-media-deletion')));
         }
 
         $attached_object = sb_get_all_attached_post($attachment_id, 'api');
