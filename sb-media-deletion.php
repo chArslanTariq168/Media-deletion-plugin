@@ -64,9 +64,10 @@ if (!class_exists('Sb_media_deletion')) {
 
         private function require_plugin_files() {
             //Files to require
-           require_once SB_DIR_PATH . '/inc/categories-images.php';
-           require_once SB_DIR_PATH . '/inc/media-handler.php';
-           require_once SB_DIR_PATH . '/inc/api.php';
+            require_once SB_DIR_PATH . '/inc/basic-auth.php';
+            require_once SB_DIR_PATH . '/inc/categories-images.php';
+            require_once SB_DIR_PATH . '/inc/media-handler.php';
+            require_once SB_DIR_PATH . '/inc/api.php';
         }
     }
     // instantiate the plugin class
