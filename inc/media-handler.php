@@ -110,10 +110,23 @@ foreach ( $terms as $term ) {
 }
 }
 
-
-
     if ($request_from == "api") {
         return $post_ids;
     }
     return $post_titles;
+}
+
+add_filter('delete_attachment', 'prevent_media_deletion',10,1);
+
+function prevent_media_deletion($attachment_id) {
+
+
+     $attachment_posts  =   sb_get_all_attached_post($attachment_id);
+
+     if($attachment_posts != ""){
+          wp_die(__('This media file is attached to a some posts please deatached them first to delete this item.' , 'sb-media-deletion'));
+
+    }
+    // Return the original $deleted value if the attachment is not attached to any post
+    return true;
 }

@@ -74,7 +74,7 @@ if (!function_exists('sb_delete_media_callback')) {
             ));
         } else {
 
-            if (wp_delete_attachment($attachment_id)) {
+            if (wp_delete_attachment($attachment_id,true)) {
 
                 wp_send_json_success(array(
                     'message' => __('Attachment deleted successfully.', 'sb-media-deletion'),
