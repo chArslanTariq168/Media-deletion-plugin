@@ -15,7 +15,7 @@ This plugin provides several APIs to work with media.
 assignment/v1', '/get_media_data/
 ```
 
-This API is a POST request that requires an attachment ID. It will return the following data:
+This API is a POST request that requires an attachment ID ("id" as a request param). It will return the following data:
 
 ```bash
 "data": {
@@ -25,7 +25,8 @@ This API is a POST request that requires an attachment ID. It will return the fo
         "type": "image/png",
         "link": "http://localhost/wordpress/wp-content/uploads/2023/01/A18.png",
         "alt_text": "",
-        "attached_object": ["ids of attached objects"]
+        "attached_object": [12,23,34,45]
+        }
 ```
 
 Delete media in another api this plugin provide .
@@ -34,4 +35,4 @@ Delete media in another api this plugin provide .
 ```bash
 assignment/v1', '/delete_media/
 ```
-This API is also a POST request that requires an attachment ID. The API will check whether the media is attached to any object and return the IDs of those objects if it is. If the media item is not attached to anything, the plugin will delete it and return a success message.
+This API is also a POST request that requires an attachment ID("id" as a request param). The API will check whether the media is attached to any object and return the IDs of those objects if it is. If the media item is not attached to anything, the plugin will delete it and return a success message.
