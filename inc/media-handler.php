@@ -87,6 +87,31 @@ function sb_get_all_attached_post($attachment_id, $request_from = "")
             $post_ids[] = $post_id;
         }
     }
+
+   /*check term in which this media exist*/
+   $args = array(
+    'taxonomy' => 'category', // specify the taxonomy to search in
+    'meta_query' => array(
+        array(
+            'key' => 'sb_media_deletion_taxonomy_image', // your specific term meta key
+            'value' => wp_get_attachment_url($attachment_id), // the meta value you want to search for
+            'compare' => '=' // the comparison operator, in this case we want to find exact matches for the meta value
+        )
+    )
+);
+
+$terms = get_terms( $args );
+
+if(!empty($terms)){
+foreach ( $terms as $term ) {
+  $edit_url = get_edit_term_link( $term->term_id, $term->taxonomy ); // get the edit link for the term
+  $post_titles .= '<a href="' . $edit_url . '">' . $term->name . '</a><br>'; // create the anchor link and append it to $pos_titles
+  $post_ids[] = $term->term_id;
+}
+}
+
+
+
     if ($request_from == "api") {
         return $post_ids;
     }

@@ -20,11 +20,9 @@ function sb_media_deletion_image_actions() {
 }
 
 if (!function_exists('sb_media_deletion_add_style')) {
-
     function sb_media_deletion_add_style() {
         echo '<style type="text/css" media="screen">th.column-thumb {width:60px;}.form-field img.taxonomy-image {border:1px solid #eee;max-width:300px;max-height:300px;}.inline-edit-row fieldset .thumb label span.title {width:48px;height:48px;border:1px solid #eee;display:inline-block;}.column-thumb span {width:48px;height:48px;border:1px solid #eee;display:inline-block;}.inline-edit-row fieldset .thumb img,.column-thumb img {width:48px;height:48px;}</style>';
     }
-
 }
 // add image field in add form
 if (!function_exists('sb_media_deletion_add_texonomy_field')) {
@@ -43,11 +41,9 @@ if (!function_exists('sb_media_deletion_add_texonomy_field')) {
 if (!function_exists('sb_media_deletion_edit_texonomy_field')) {
     function sb_media_deletion_edit_texonomy_field($taxonomy) {
         wp_enqueue_media();
-        $image_url = sb_media_deletion_taxonomy_image_url($taxonomy->term_id, NULL, TRUE);
-        $image_url = (sb_media_deletion_taxonomy_image_url($taxonomy->term_id, NULL, TRUE) == DEFAULT_IMAGE_PATH) ? "" : $image_url;
-
+        $image_url = sb_media_deletion_taxonomy_image_url($taxonomy->term_id, 'medium', TRUE);
         echo '<tr class="form-field"><th scope="row" valign="top"><label for="taxonomy_image">' . __('Image', 'sb_media_deletion') . '</label></th><td><img style="
-        max-width: 400px" class="taxonomy-image theme-cat-image" src="' . sb_media_deletion_taxonomy_image_url($taxonomy->term_id, 'medium', TRUE) . '"/><br/><input type="text" name="taxonomy_image" id="taxonomy_image" value="' . $image_url . '" /><br /><button class="sb_media_deletion_remove_image_button button">' . __('Remove image', 'sb_media_deletion') . '</button><button class="sb_media_deletion_upload_image_button button">' . __('Upload/Add image', 'sb_media_deletion') . '</button></td></tr>' . sb_media_deletion_termMedia_script();
+        max-width: 400px" class="taxonomy-image theme-cat-image" src="' .$image_url.'"/><br/><input type="text" name="taxonomy_image" id="taxonomy_image" value="' . $image_url . '" /><br /><button class="sb_media_deletion_remove_image_button button">' . __('Remove image', 'sb_media_deletion') . '</button><button class="sb_media_deletion_upload_image_button button">' . __('Upload/Add image', 'sb_media_deletion') . '</button></td></tr>' . sb_media_deletion_termMedia_script();
     }
 }
 add_action('edit_term', 'sb_media_deletion_save_taxonomy_image');
@@ -55,7 +51,7 @@ add_action('create_term', 'sb_media_deletion_save_taxonomy_image');
 if (!function_exists('sb_media_deletion_save_taxonomy_image')) {
     function sb_media_deletion_save_taxonomy_image($term_id) {
         if (isset($_POST['taxonomy_image']))
-            update_option('sb_media_deletion_taxonomy_image' . $term_id, $_POST['taxonomy_image'], NULL);
+            update_term_meta($term_id , 'sb_media_deletion_taxonomy_image' , $_POST['taxonomy_image']);
     }
 }
 if (!function_exists('sb_media_deletion_get_attachment_id_by_url')) {
@@ -71,6 +67,7 @@ if (!function_exists('sb_media_deletion_get_attachment_id_by_url')) {
 if (!function_exists('sb_media_deletion_taxonomy_image_url')) {
 
     function sb_media_deletion_taxonomy_image_url($term_id = NULL, $size = 'full', $return_placeholder = false) {
+       
         if (!$term_id) {
             if (is_category())
                 $term_id = get_query_var('cat');
@@ -82,7 +79,7 @@ if (!function_exists('sb_media_deletion_taxonomy_image_url')) {
             }
         }
 
-        $taxonomy_image_url = get_option('sb_media_deletion_taxonomy_image' . $term_id);
+        $taxonomy_image_url =  get_term_meta($term_id , 'sb_media_deletion_taxonomy_image' , true);
         if (!empty($taxonomy_image_url)) {
             $attachment_id = sb_media_deletion_get_attachment_id_by_url($taxonomy_image_url);
             if (!empty($attachment_id)) {
@@ -92,9 +89,7 @@ if (!function_exists('sb_media_deletion_taxonomy_image_url')) {
         }
 
         if ($return_placeholder == true) {
-          
             $default_url = DEFAULT_IMAGE_PATH;
-            
             return ($taxonomy_image_url != '') ? $taxonomy_image_url : $default_url;
         } else {
             return $taxonomy_image_url;
@@ -168,7 +163,7 @@ if (!function_exists('sb_media_deletion_taxonomy_image')) {
             }
         }
 
-        $taxonomy_image_url = get_option('sb_media_deletion_taxonomy_image' . $term_id);
+        $taxonomy_image_url =  get_term_meta($term_id , 'sb_media_deletion_taxonomy_image' , true);
         if (!empty($taxonomy_image_url)) {
             $attachment_id = sb_media_deletion_get_attachment_id_by_url($taxonomy_image_url);
             if (!empty($attachment_id)) {
@@ -187,7 +182,7 @@ if (!function_exists('sb_media_deletion_taxonomy_image')) {
         }
 
         if ($echo) {
-            echo sb_media_deletion_returnEcho($taxonomy_image) ;
+            echo $taxonomy_image ;
         } else {
             return $taxonomy_image;
         }

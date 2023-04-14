@@ -69,7 +69,7 @@ if (!function_exists('sb_delete_media_callback')) {
         if (is_array($attached_object) && !empty($attached_object)) {
 
             wp_send_json_error(array(
-                'message' => __('You cannot delete this media, it is assigned to some posts.', 'sb-media-deletion'),
+                'message' => __('You cannot delete this media, it is assigned to some objects.', 'sb-media-deletion'),
                 'attached_object' => $attached_object,
             ));
         } else {
